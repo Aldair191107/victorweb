@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Laboral - Contaduría</title>
+    <style>
+        body { font-family: 'Helvetica', Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { color: #007bff; text-align: center; font-size: 26px; margin-bottom: 30px; }
+        
+        .card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: #007bff; font-size: 20px; margin-top: 0; margin-bottom: 15px; }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        button { width: 100%; background-color: #007bff; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+
+        /* Estilo igual a tu imagen para los resultados */
+        .result-box { margin-top: 15px; padding: 15px; background: #f1f3f5; border-radius: 8px; border-left: 5px solid #007bff; font-size: 15px; min-height: 20px; line-height: 1.6; }
+        .law-text { font-size: 12px; color: #777; margin-bottom: 10px; display: block; }
+        b { color: #007bff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calculadora Laboral Profesional - Contaduría</h1>
+
+    <div class="card">
+        <h2>Datos de Entrada</h2>
+        <label>Salario Diario ($)</label>
+        <input type="number" id="salarioDiario" placeholder="Ingrese salario diario" oninput="calcularAutomaticos()">
+        
+        <label>Tipo de Jornada</label>
+        <select id="tipoJornada" onchange="calcularAutomaticos()">
+            <option value="8">Diurna (8 horas)</option>
+            <option value="7.5">Mixta (7.5 horas)</option>
+            <option value="7">Nocturna (7 horas)</option>
+        </select>
+        <small class="law-text">Se utiliza para determinar el valor por hora.</small>
+    </div>
+
+    <div class="card">
+        <h2>Aguinaldo</h2>
+        <span class="law-text">Art. 87 LFT: Los trabajadores tendrán derecho a un aguinaldo anual equivalente a quince días de salario, por lo menos.</span>
+        <div class="result-box" id="resAguinaldo">Ingrese el salario para calcular...</div>
+    </div>
+
+    <div class="card">
+        <h2>Horas Extras</h2>
+        <label>Total de horas extras trabajadas</label>
+        <input type="number" id="totalHrs" placeholder="Ej. 10">
+        <button onclick="calcularExtras()">Calcular Horas Extras</button>
+        <div class="result-box" id="resExtras"></div>
+    </div>
+
+    <div class="card">
+        <h2>Prima Vacacional</h2>
+        <label>Años de antigüedad</label>
+        <input type="number" id="antiguedad" placeholder="Años cumplidos">
+        <button onclick="calcularVacaciones()">Calcular Prima</button>
+        <div class="result-box" id="resVacaciones"></div>
+    </div>
+
+</div>
+
+<script>
+    // Función para cálculos que dependen solo del salario diario
+    function calcularAutomaticos() {
+        let sd = parseFloat(document.getElementById('salarioDiario').value);
+        
+        if (sd > 0) {
+            // Aguinaldo automático (Art 87)
+            let aguinaldo = sd * 15;
+            document.getElementById('resAguinaldo').innerHTML = El aguinaldo mínimo (15 días) es de: <b>$${aguinaldo.toLocaleString()}</b>;
+        } else {
+            document.getElementById('resAguinaldo').innerText = "Ingrese el salario para calcular...";
+        }
+    }
+
+    function calcularExtras() {
+        let sd = parseFloat(document.getElementById('salarioDiario').value);
+        let jornada = parseFloat(document.getElementById('tipoJornada').value);
+        let hrs = parseFloat(document.getElementById('totalHrs').value);
+
+        if (!sd || !hrs) return alert("Por favor completa el salario y las horas.");
+
+        let valorHora = sd / jornada;
+        let dobles = 0, triples = 0;
+
+        // Lógica de horas extras (primeras 9 son dobles, el resto triples)
+        if (hrs <= 9) {
+            dobles = hrs;
+        } else {
+            dobles = 9;
+            triples = hrs - 9;
+        }
+
+        let montoDobles = dobles * (valorHora * 2);
+        let montoTriples = triples * (valorHora * 3);
+
+        document.getElementById('resExtras').innerHTML = `
+            Valor x Hora: <b>$${valorHora.toFixed(2)}</b><br>
+            Horas al Doble (${dobles}): <b>$${montoDobles.toFixed(2)}</b><br>
+            Horas al Triple (${triples}): <b>$${montoTriples.toFixed(2)}</b><br>
+            Total a pagar: <b>$${(montoDobles + montoTriples).toFixed(2)}</b>
+        `;
+    }
+
+    function calcularVacaciones() {
+        let sd = parseFloat(document.getElementById('salarioDiario').value);
+        let anos = parseInt(document.getElementById('antiguedad').value);
+
+        if (!sd || !anos) return alert("Ingresa salario y años de antigüedad.");
+
+        // Tabla actualizada LFT (Vacaciones Dignas)
+        let dias = 0;
+        if (anos == 1) dias = 12;
+        else if (anos == 2) dias = 14;
+        else if (anos == 3) dias = 16;
+        else if (anos == 4) dias = 18;
+        else if (anos == 5) dias = 20;
+        else if (anos >= 6 && anos <= 10) dias = 22;
+        else if (anos >= 11 && anos <= 15) dias = 24;
+        else if (anos >= 16 && anos <= 20) dias = 26;
+        else if (anos >= 21 && anos <= 25) dias = 28;
+        else dias = 30;
+
+        let montoVac = dias * sd;
+        let prima = montoVac * 0.25;
+
+        document.getElementById('resVacaciones').innerHTML = `
+            Días de vacaciones: <b>${dias} días</b><br>
+            Pago de vacaciones: <b>$${montoVac.toLocaleString()}</b><br>
+            Prima Vacacional (25%): <b>$${prima.toLocaleString()}</b>
+        `;
+    }
+</script>
+
+</body>
+</html>
